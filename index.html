@@ -576,6 +576,8 @@ let food = { lx:0, ly:0 };
 let mazeWalls = [];
 let powerUps = [];
 
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
 let lives = 3;
 let baseSpeed = isMobile ? 200 : 250;
 let speedEffectTimer = 0;
@@ -604,7 +606,6 @@ let ambientParticles = [];
 // ═══════════════════════════════════════════
 // Canvas & Resize
 // ═══════════════════════════════════════════
-const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
