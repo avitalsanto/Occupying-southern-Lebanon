@@ -1099,17 +1099,7 @@ function update(){
     dx=nextDx;dy=nextDy;
     const head={lx:snake[0].lx+dx,ly:snake[0].ly+dy};
 
-    const origLx=head.lx, origLy=head.ly;
-    if(head.lx<0) head.lx=tileCountX-1;
-    if(head.lx>=tileCountX) head.lx=0;
-    if(head.ly<hudRows) head.ly=tileCountY-1;
-    if(head.ly>=tileCountY) head.ly=hudRows;
-    const wrapped=head.lx!==origLx||head.ly!==origLy;
-    if(wrapped){
-        createSmokeTrail(snake[0].vx+gridSize/2,snake[0].vy+gridSize/2);
-        snake[0].vx=head.lx*gridSize;
-        snake[0].vy=head.ly*gridSize;
-    }
+    if(head.lx<0||head.lx>=tileCountX||head.ly<hudRows||head.ly>=tileCountY) return;
     if(snake.some(s=>s.lx===head.lx&&s.ly===head.ly)){const r=handleCollision('self',head);if(!r)return endGame();return;}
     if(mazeWalls.some(w=>w.lx===head.lx&&w.ly===head.ly)){const r=handleCollision('wall',head);if(!r)return endGame();if(r==='life')return;}
 
@@ -1118,9 +1108,7 @@ function update(){
     if(pi!==-1){collectPowerUp(powerUps[pi]);powerUps.splice(pi,1);}
 
     if(head.lx===food.lx&&head.ly===food.ly){
-        const newVx=wrapped?head.lx*gridSize:snake[0].vx;
-        const newVy=wrapped?head.ly*gridSize:snake[0].vy;
-        snake.unshift({lx:head.lx,ly:head.ly,vx:newVx,vy:newVy});
+        snake.unshift({lx:head.lx,ly:head.ly,vx:snake[0].vx,vy:snake[0].vy});
         score++;scoreElement.innerText=score;
         const fx=food.lx*gridSize+gridSize/2,fy=food.ly*gridSize+gridSize/2;
         createShockwave(fx,fy,'#ff9500');createFireParticles(fx,fy,25);createParticles(fx,fy,'#c8a050',15);createDebris(fx,fy,10);triggerScreenShake(8);triggerFlash();
@@ -1139,7 +1127,6 @@ function update(){
     } else {
         for(let i=snake.length-1;i>0;i--){snake[i].lx=snake[i-1].lx;snake[i].ly=snake[i-1].ly;}
         snake[0].lx=head.lx;snake[0].ly=head.ly;
-        if(wrapped){for(let i=0;i<snake.length;i++){snake[i].vx=snake[i].lx*gridSize;snake[i].vy=snake[i].ly*gridSize;}}
     }
 }
 
@@ -1235,8 +1222,7 @@ function draw(){
     if(hasStarted){snake[0].vx+=(snake[0].lx*gridSize-snake[0].vx)*0.25;snake[0].vy+=(snake[0].ly*gridSize-snake[0].vy)*0.25;}
     for(let i=1;i<snake.length;i++){
         const p=snake[i-1],c=snake[i],sdx=p.vx-c.vx,sdy=p.vy-c.vy,d=Math.hypot(sdx,sdy),td=gridSize*0.9;
-        if(d>gridSize*3){c.vx=c.lx*gridSize;c.vy=c.ly*gridSize;}
-        else if(d>td){const f=(d-td)*0.35;c.vx+=(sdx/d)*f;c.vy+=(sdy/d)*f;}
+        if(d>td){const f=(d-td)*0.35;c.vx+=(sdx/d)*f;c.vy+=(sdy/d)*f;}
     }
 
     for(let i=snake.length-1;i>=0;i--){
