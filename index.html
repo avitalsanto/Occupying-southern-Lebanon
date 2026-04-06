@@ -1099,9 +1099,10 @@ function update(){
     dx=nextDx;dy=nextDy;
     const head={lx:snake[0].lx+dx,ly:snake[0].ly+dy};
 
-    if(head.lx<0||head.lx>=tileCountX||head.ly<hudRows||head.ly>=tileCountY){
-        const r=handleCollision('border',head);if(!r)return endGame();return;
-    }
+    if(head.lx<0) head.lx=tileCountX-1;
+    if(head.lx>=tileCountX) head.lx=0;
+    if(head.ly<hudRows) head.ly=tileCountY-1;
+    if(head.ly>=tileCountY) head.ly=hudRows;
     if(snake.some(s=>s.lx===head.lx&&s.ly===head.ly)){const r=handleCollision('self',head);if(!r)return endGame();return;}
     if(mazeWalls.some(w=>w.lx===head.lx&&w.ly===head.ly)){const r=handleCollision('wall',head);if(!r)return endGame();if(r==='life')return;}
 
