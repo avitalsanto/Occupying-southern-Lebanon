@@ -11,6 +11,10 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+        }
         html, body {
             width: 100%; height: 100%;
             position: fixed;
@@ -104,6 +108,12 @@
             background: rgba(40,38,25,0.5); color: #a09060;
             font-family: 'Montserrat', sans-serif; font-size: 10px; margin: 0 2px;
         }
+        .cover-keys-mobile { display: none; }
+        @media (hover:none) and (pointer:coarse) {
+            .cover-keys-desktop { display: none; }
+            .cover-keys-mobile { display: block; }
+            .cover-start { padding: 18px 52px; font-size: clamp(14px,2.5vw,18px); }
+        }
         .cover-line {
             width: 50px; height: 1px;
             background: linear-gradient(90deg,transparent,rgba(200,160,80,0.3),transparent);
@@ -114,8 +124,10 @@
         /* ── HUD Bar ── */
         .hud-bar {
             position: fixed; top: 0; left: 0; right: 0; z-index: 20;
-            height: 48px; display: flex; align-items: stretch;
-            background: linear-gradient(180deg,rgba(12,12,7,0.92) 0%,rgba(12,12,7,0.75) 80%,transparent 100%);
+            height: calc(48px + env(safe-area-inset-top, 0px));
+            padding-top: env(safe-area-inset-top, 0px);
+            display: flex; align-items: stretch;
+            background: linear-gradient(180deg,rgba(12,12,7,0.94) 0%,rgba(12,12,7,0.8) 80%,transparent 100%);
             border-bottom: 1px solid rgba(200,160,80,0.08);
             pointer-events: none;
         }
@@ -200,32 +212,46 @@
             100% { opacity:0; transform:translate(-50%,-50%) scale(1); }
         }
 
-        /* ── Controls ── */
-        .controls-overlay {
-            position: fixed; bottom: max(16px, env(safe-area-inset-bottom, 16px));
-            left: 50%; transform: translateX(-50%);
-            z-index: 20; display: none; flex-direction: column;
-            align-items: center; gap: 6px;
+        /* ── Mobile Bomb Button (floating) ── */
+        .bomb-float {
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom, 24px));
+            right: max(20px, env(safe-area-inset-right, 20px));
+            z-index: 20; display: none;
         }
-        @media (hover:none) and (pointer:coarse) { .controls-overlay { display: flex; } }
-        .ctrl-row { display: flex; gap: 8px; }
-        .control-btn {
-            width: 62px; height: 62px; display: flex;
+        @media (hover:none) and (pointer:coarse) { .bomb-float { display: block; } }
+        .bomb-float-btn {
+            width: 60px; height: 60px; display: flex;
             align-items: center; justify-content: center;
-            background: rgba(40,38,25,0.7);
-            border: 1px solid rgba(200,160,80,0.2);
-            border-radius: 16px; color: #c8a050;
-            backdrop-filter: blur(8px); -webkit-tap-highlight-color: transparent;
+            background: rgba(40,38,25,0.75);
+            border: 1.5px solid rgba(200,160,80,0.25);
+            border-radius: 50%; color: #c8a050;
+            font-size: 26px; position: relative;
+            backdrop-filter: blur(10px); -webkit-tap-highlight-color: transparent;
             transition: transform 0.1s, background 0.1s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
-        .control-btn:active { background: rgba(200,160,80,0.2); color:#f0d080; transform:scale(0.88); }
-        .bomb-btn { width: auto; padding: 0 20px; font-size: 24px; position: relative; }
+        .bomb-float-btn:active { background: rgba(200,160,80,0.25); transform:scale(0.88); }
         .bomb-count-badge {
-            position: absolute; top: -4px; right: -4px;
+            position: absolute; top: -2px; right: -2px;
             background: #c8a050; color: #1a1a0e;
             font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800;
             min-width: 18px; height: 18px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
+        }
+        /* ── Tap Direction Indicator ── */
+        .tap-indicator {
+            position: fixed; z-index: 14; pointer-events: none;
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 2px solid rgba(200,160,80,0.4);
+            background: rgba(200,160,80,0.08);
+            transform: translate(-50%,-50%) scale(0);
+            transition: transform 0.1s ease-out, opacity 0.3s;
+            opacity: 0;
+        }
+        .tap-indicator.show {
+            transform: translate(-50%,-50%) scale(1);
+            opacity: 1;
         }
 
         #flash {
@@ -269,17 +295,35 @@
             text-transform:uppercase; cursor:pointer; transition:all 0.2s;
         }
         .restart-btn:hover { background:rgba(200,160,80,0.12); box-shadow:0 0 30px rgba(200,120,20,0.2); }
+        @media (hover:none) and (pointer:coarse) {
+            .restart-btn { padding: 16px 48px; font-size: 14px; }
+        }
 
-        @media (max-width:600px) {
-            .hud-center-title { font-size:10px; }
-            .hud-stat-num { font-size:15px; }
-            .hud-stat-label { font-size: 7px; }
-            .hud-stat-icon { width:22px; height:22px; font-size:11px; border-radius:5px; }
-            .hud-section { padding:0 6px; gap:4px; }
-            .hud-bar { height: 42px; }
+        @media (max-width:700px) {
+            .hud-bar {
+                height: calc(40px + env(safe-area-inset-top, 0px));
+            }
+            .hud-section-center { display: none; }
+            .hud-section { padding: 0 8px; gap: 6px; }
+            .hud-stat { gap: 5px; }
+            .hud-stat-icon { width: 24px; height: 24px; font-size: 12px; border-radius: 5px; }
+            .hud-stat-num { font-size: 16px; }
+            .hud-stat-label { font-size: 7px; letter-spacing: 0.12em; }
             .hud-pw { padding: 2px 6px; font-size: 11px; }
             .hud-pw-timer { font-size: 10px; }
             .hud-sep { height: 16px; margin: 0 2px; }
+            .mute-btn { width: 26px; height: 26px; font-size: 12px; }
+        }
+        @media (max-width:400px) {
+            .hud-bar { height: calc(36px + env(safe-area-inset-top, 0px)); }
+            .hud-section { padding: 0 6px; gap: 4px; }
+            .hud-stat { gap: 3px; }
+            .hud-stat-icon { width: 20px; height: 20px; font-size: 10px; border-radius: 4px; }
+            .hud-stat-num { font-size: 14px; }
+            .hud-stat-label { font-size: 6px; }
+            .hud-pw { padding: 2px 4px; font-size: 10px; gap: 2px; }
+            .hud-pw-timer { font-size: 9px; }
+            .bomb-float-btn { width: 50px; height: 50px; font-size: 22px; }
         }
     </style>
 </head>
@@ -304,9 +348,12 @@
         <div class="cover-line"></div>
         <div class="cover-sub">הובל את שיירת הטנקים, כבוש יעדים, והישאר בחיים</div>
         <button id="startBtn" class="cover-start">התחל מבצע</button>
-        <div class="cover-keys">
+        <div class="cover-keys cover-keys-desktop">
             <kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> תנועה &nbsp;·&nbsp;
             <kbd>רווח</kbd> פצצה
+        </div>
+        <div class="cover-keys cover-keys-mobile">
+            👆 לחץ על המסך לכיוון התנועה &nbsp;·&nbsp; 💣 כפתור פצצה
         </div>
     </div>
 </div>
@@ -369,28 +416,11 @@
     <button onclick="resetGame()" class="restart-btn fade-in" style="animation-delay:0.4s;">התחל מחדש</button>
 </div>
 
-<!-- Mobile Controls -->
-<div class="controls-overlay" id="mobileControls">
-    <div class="ctrl-row">
-        <button class="control-btn" ontouchstart="changeDir('up'); event.preventDefault();">
-            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
-        </button>
-    </div>
-    <div class="ctrl-row">
-        <button class="control-btn" ontouchstart="changeDir('left'); event.preventDefault();">
-            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-        <button class="control-btn" ontouchstart="changeDir('down'); event.preventDefault();">
-            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <button class="control-btn" ontouchstart="changeDir('right'); event.preventDefault();">
-            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-        </button>
-    </div>
-    <div class="ctrl-row">
-        <button class="control-btn bomb-btn" id="bombBtnMobile" ontouchstart="useBomb(); event.preventDefault();">💣<span class="bomb-count-badge" id="bombBadge" style="display:none;">0</span></button>
-    </div>
+<!-- Mobile Bomb Button -->
+<div class="bomb-float" id="bombFloat">
+    <button class="bomb-float-btn" id="bombBtnMobile">💣<span class="bomb-count-badge" id="bombBadge" style="display:none;">0</span></button>
 </div>
+<div class="tap-indicator" id="tapIndicator"></div>
 
 <script>
 // ═══════════════════════════════════════════
@@ -420,6 +450,8 @@ const taEmoji = document.getElementById('taEmoji');
 const taName = document.getElementById('taName');
 const taSub = document.getElementById('taSub');
 const bombBadge = document.getElementById('bombBadge');
+const bombBtnMobile = document.getElementById('bombBtnMobile');
+const tapIndicator = document.getElementById('tapIndicator');
 
 // ═══════════════════════════════════════════
 // Audio System
@@ -585,12 +617,13 @@ function resizeCanvas() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const minDim = Math.min(canvasW, canvasH);
-    const targetTiles = isMobile ? 11 : 14;
+    const targetTiles = isMobile ? 13 : 14;
     gridSize = Math.floor(minDim / targetTiles);
     tileCountX = Math.floor(canvasW / gridSize);
     tileCountY = Math.floor(canvasH / gridSize);
 
-    const hudH = isMobile ? 42 : 48;
+    const hudEl = document.getElementById('hudBar');
+    const hudH = hudEl && hudEl.offsetHeight > 0 ? hudEl.offsetHeight : (isMobile ? 44 : 48);
     hudRows = Math.ceil(hudH / gridSize) + 1;
 
     generateBG();
@@ -853,22 +886,67 @@ function skipStage() {
     playSound('terrain');
 }
 
-let touchStartX=0, touchStartY=0, touchStartTime=0;
+// Tap-to-move: tap anywhere on screen, direction is relative to the snake head
+let lastTapTime = 0;
+canvas.addEventListener('touchstart', e => {
+    if (!gameStarted || !gameActive) return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    const tx = touch.clientX;
+    const ty = touch.clientY;
+
+    // Ignore taps on the HUD area
+    const hudEl = document.getElementById('hudBar');
+    const hudBtm = hudEl ? hudEl.offsetHeight : 48;
+    if (ty < hudBtm + 10) return;
+
+    const hx = snake[0].vx + gridSize / 2;
+    const hy = snake[0].vy + gridSize / 2;
+    const diffX = tx - hx;
+    const diffY = ty - hy;
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        changeDir(diffX > 0 ? 'right' : 'left');
+    } else {
+        changeDir(diffY > 0 ? 'down' : 'up');
+    }
+
+    // Visual tap feedback
+    tapIndicator.style.left = tx + 'px';
+    tapIndicator.style.top = ty + 'px';
+    tapIndicator.classList.add('show');
+    clearTimeout(tapIndicator._hideTimeout);
+    tapIndicator._hideTimeout = setTimeout(() => tapIndicator.classList.remove('show'), 200);
+
+    lastTapTime = Date.now();
+}, {passive: false});
+
+// Swipe support as secondary input
+let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
 document.addEventListener('touchstart', e => {
-    touchStartX=e.changedTouches[0].screenX;
-    touchStartY=e.changedTouches[0].screenY;
-    touchStartTime=Date.now();
-}, {passive:true});
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+    touchStartTime = Date.now();
+}, {passive: true});
 document.addEventListener('touchend', e => {
     if (!gameActive) return;
-    if (Date.now()-touchStartTime > 500) return;
-    const tdX=e.changedTouches[0].screenX-touchStartX;
-    const tdY=e.changedTouches[0].screenY-touchStartY;
-    if (Math.abs(tdX)>30||Math.abs(tdY)>30) {
-        if (Math.abs(tdX)>Math.abs(tdY)) changeDir(tdX>0?'right':'left');
-        else changeDir(tdY>0?'down':'up');
+    if (Date.now() - lastTapTime < 100) return;
+    if (Date.now() - touchStartTime > 500) return;
+    const tdX = e.changedTouches[0].screenX - touchStartX;
+    const tdY = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(tdX) > 40 || Math.abs(tdY) > 40) {
+        if (Math.abs(tdX) > Math.abs(tdY)) changeDir(tdX > 0 ? 'right' : 'left');
+        else changeDir(tdY > 0 ? 'down' : 'up');
     }
-}, {passive:true});
+}, {passive: true});
+
+// Floating bomb button
+bombBtnMobile.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    useBomb();
+}, {passive: false});
 
 function changeDir(dir) {
     if (!gameStarted) { startGame(); return; }
@@ -1148,7 +1226,7 @@ function draw(){
 
     for(let i=snake.length-1;i>=0;i--){
         const s=snake[i];
-        const ms=1.1,ns=0.77,sp=snake.length>1?(i/(snake.length-1)):0,cs=ms-(sp*(ms-ns));
+        const ms=1.21,ns=0.847,sp=snake.length>1?(i/(snake.length-1)):0,cs=ms-(sp*(ms-ns));
         const ds=gridSize*cs,dsx=s.vx+gridSize/2,dsy=s.vy+gridSize/2;
         ctx.save();ctx.translate(dsx,dsy);
         let a=0;if(i===0){a=hasStarted?Math.atan2(dy,dx):-Math.PI/2;}else{if(snake[i-1].vx!==s.vx||snake[i-1].vy!==s.vy)a=Math.atan2(snake[i-1].vy-s.vy,snake[i-1].vx-s.vx);else a=-Math.PI/2;}
@@ -1178,7 +1256,7 @@ function draw(){
         ctx.fillStyle=`rgba(240,208,128,${0.5+Math.sin(globalTimer*5)*0.4})`;
         ctx.font=`bold ${isMobile?14:20}px Assistant`;ctx.textAlign='center';
         ctx.shadowColor='rgba(200,120,20,0.5)';ctx.shadowBlur=15;
-        const promptText = isMobile ? 'החלק או השתמש בכפתורים' : 'חצים = תנועה | רווח = פצצה | 0 = דלג שלב';
+        const promptText = isMobile ? '👆 לחץ לכיוון התנועה' : 'חצים = תנועה | רווח = פצצה | 0 = דלג שלב';
         ctx.fillText(promptText,canvasW/2,canvasH-60);
         ctx.restore();
     }
