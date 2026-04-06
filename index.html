@@ -1104,13 +1104,11 @@ function update(){
     if(head.lx>=tileCountX) head.lx=0;
     if(head.ly<hudRows) head.ly=tileCountY-1;
     if(head.ly>=tileCountY) head.ly=hudRows;
-    if(head.lx!==origLx){
-        if(origLx<0) snake[0].vx=tileCountX*gridSize;
-        else snake[0].vx=-gridSize;
-    }
-    if(head.ly!==origLy){
-        if(origLy<hudRows) snake[0].vy=tileCountY*gridSize;
-        else snake[0].vy=-gridSize;
+    const wrapped=head.lx!==origLx||head.ly!==origLy;
+    if(wrapped){
+        createSmokeTrail(snake[0].vx+gridSize/2,snake[0].vy+gridSize/2);
+        snake[0].vx=head.lx*gridSize;
+        snake[0].vy=head.ly*gridSize;
     }
     if(snake.some(s=>s.lx===head.lx&&s.ly===head.ly)){const r=handleCollision('self',head);if(!r)return endGame();return;}
     if(mazeWalls.some(w=>w.lx===head.lx&&w.ly===head.ly)){const r=handleCollision('wall',head);if(!r)return endGame();if(r==='life')return;}
@@ -1120,7 +1118,9 @@ function update(){
     if(pi!==-1){collectPowerUp(powerUps[pi]);powerUps.splice(pi,1);}
 
     if(head.lx===food.lx&&head.ly===food.ly){
-        snake.unshift({lx:head.lx,ly:head.ly,vx:snake[0].vx,vy:snake[0].vy});
+        const newVx=wrapped?head.lx*gridSize:snake[0].vx;
+        const newVy=wrapped?head.ly*gridSize:snake[0].vy;
+        snake.unshift({lx:head.lx,ly:head.ly,vx:newVx,vy:newVy});
         score++;scoreElement.innerText=score;
         const fx=food.lx*gridSize+gridSize/2,fy=food.ly*gridSize+gridSize/2;
         createShockwave(fx,fy,'#ff9500');createFireParticles(fx,fy,25);createParticles(fx,fy,'#c8a050',15);createDebris(fx,fy,10);triggerScreenShake(8);triggerFlash();
@@ -1139,6 +1139,7 @@ function update(){
     } else {
         for(let i=snake.length-1;i>0;i--){snake[i].lx=snake[i-1].lx;snake[i].ly=snake[i-1].ly;}
         snake[0].lx=head.lx;snake[0].ly=head.ly;
+        if(wrapped&&snake.length>1){snake[1].vx=snake[1].lx*gridSize;snake[1].vy=snake[1].ly*gridSize;}
     }
 }
 
