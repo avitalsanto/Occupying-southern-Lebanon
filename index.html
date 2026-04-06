@@ -1139,7 +1139,7 @@ function update(){
     } else {
         for(let i=snake.length-1;i>0;i--){snake[i].lx=snake[i-1].lx;snake[i].ly=snake[i-1].ly;}
         snake[0].lx=head.lx;snake[0].ly=head.ly;
-        if(wrapped&&snake.length>1){snake[1].vx=snake[1].lx*gridSize;snake[1].vy=snake[1].ly*gridSize;}
+        if(wrapped){for(let i=0;i<snake.length;i++){snake[i].vx=snake[i].lx*gridSize;snake[i].vy=snake[i].ly*gridSize;}}
     }
 }
 
@@ -1235,7 +1235,8 @@ function draw(){
     if(hasStarted){snake[0].vx+=(snake[0].lx*gridSize-snake[0].vx)*0.25;snake[0].vy+=(snake[0].ly*gridSize-snake[0].vy)*0.25;}
     for(let i=1;i<snake.length;i++){
         const p=snake[i-1],c=snake[i],sdx=p.vx-c.vx,sdy=p.vy-c.vy,d=Math.hypot(sdx,sdy),td=gridSize*0.9;
-        if(d>td){const f=(d-td)*0.35;c.vx+=(sdx/d)*f;c.vy+=(sdy/d)*f;}
+        if(d>gridSize*3){c.vx=c.lx*gridSize;c.vy=c.ly*gridSize;}
+        else if(d>td){const f=(d-td)*0.35;c.vx+=(sdx/d)*f;c.vy+=(sdy/d)*f;}
     }
 
     for(let i=snake.length-1;i>=0;i--){
