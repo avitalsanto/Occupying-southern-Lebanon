@@ -577,7 +577,7 @@ let mazeWalls = [];
 let powerUps = [];
 
 let lives = 3;
-let baseSpeed = 250;
+let baseSpeed = isMobile ? 200 : 250;
 let speedEffectTimer = 0;
 let speedEffectType = null;
 let shieldActive = false;
@@ -588,7 +588,7 @@ let dx = 0, dy = -1;
 let nextDx = 0, nextDy = 0;
 let gameActive = true;
 let hasStarted = false;
-let speed = 250;
+let speed = isMobile ? 200 : 250;
 let lastTime = 0;
 let globalTimer = 0;
 let animationId;
@@ -812,7 +812,7 @@ function initSnake() {
     for (let i = 0; i < 3; i++) {
         snake.push({ lx:cx, ly:cy+i, vx:cx*gridSize, vy:(cy+i)*gridSize });
     }
-    score = 0; lives = 3; baseSpeed = 250; speed = 250;
+    score = 0; lives = 3; baseSpeed = isMobile ? 200 : 250; speed = baseSpeed;
     speedEffectTimer = 0; speedEffectType = null;
     shieldActive = false; shieldTimer = 0; bombs = 0;
     currentTerrain = 0;
@@ -856,10 +856,10 @@ document.addEventListener('keydown', (e) => {
         }
         return;
     }
-    if (e.key==='ArrowUp'&&dy!==1){nextDx=0;nextDy=-1;}
-    if (e.key==='ArrowDown'&&dy!==-1){nextDx=0;nextDy=1;}
-    if (e.key==='ArrowLeft'&&dx!==1){nextDx=-1;nextDy=0;}
-    if (e.key==='ArrowRight'&&dx!==-1){nextDx=1;nextDy=0;}
+    if (e.key==='ArrowUp'){nextDx=0;nextDy=-1;}
+    if (e.key==='ArrowDown'){nextDx=0;nextDy=1;}
+    if (e.key==='ArrowLeft'){nextDx=-1;nextDy=0;}
+    if (e.key==='ArrowRight'){nextDx=1;nextDy=0;}
     if (e.key===' '||e.code==='Space'){e.preventDefault();useBomb();}
 });
 
@@ -901,10 +901,12 @@ canvas.addEventListener('touchstart', e => {
     const hudBtm = hudEl ? hudEl.offsetHeight : 48;
     if (ty < hudBtm + 10) return;
 
-    const hx = snake[0].vx + gridSize / 2;
-    const hy = snake[0].vy + gridSize / 2;
+    const hx = snake[0].lx * gridSize + gridSize / 2;
+    const hy = snake[0].ly * gridSize + gridSize / 2;
     const diffX = tx - hx;
     const diffY = ty - hy;
+
+    if (isMobile && navigator.vibrate) navigator.vibrate(10);
 
     if (Math.abs(diffX) > Math.abs(diffY)) {
         changeDir(diffX > 0 ? 'right' : 'left');
@@ -959,10 +961,10 @@ function changeDir(dir) {
         if(dir==='right'){nextDx=1;nextDy=0;dx=1;dy=0;}
         return;
     }
-    if(dir==='up'&&dy!==1){nextDx=0;nextDy=-1;}
-    if(dir==='down'&&dy!==-1){nextDx=0;nextDy=1;}
-    if(dir==='left'&&dx!==1){nextDx=-1;nextDy=0;}
-    if(dir==='right'&&dx!==-1){nextDx=1;nextDy=0;}
+    if(dir==='up'){nextDx=0;nextDy=-1;}
+    if(dir==='down'){nextDx=0;nextDy=1;}
+    if(dir==='left'){nextDx=-1;nextDy=0;}
+    if(dir==='right'){nextDx=1;nextDy=0;}
     if (isMobile && navigator.vibrate) navigator.vibrate(10);
 }
 
@@ -1226,7 +1228,7 @@ function draw(){
 
     for(let i=snake.length-1;i>=0;i--){
         const s=snake[i];
-        const ms=1.21,ns=0.847,sp=snake.length>1?(i/(snake.length-1)):0,cs=ms-(sp*(ms-ns));
+        const mobileScale=isMobile?1.2:1, ms=1.21*mobileScale,ns=0.847*mobileScale,sp=snake.length>1?(i/(snake.length-1)):0,cs=ms-(sp*(ms-ns));
         const ds=gridSize*cs,dsx=s.vx+gridSize/2,dsy=s.vy+gridSize/2;
         ctx.save();ctx.translate(dsx,dsy);
         let a=0;if(i===0){a=hasStarted?Math.atan2(dy,dx):-Math.PI/2;}else{if(snake[i-1].vx!==s.vx||snake[i-1].vy!==s.vy)a=Math.atan2(snake[i-1].vy-s.vy,snake[i-1].vx-s.vx);else a=-Math.PI/2;}
@@ -1330,7 +1332,7 @@ function endGame(){
 
 function resetGame(){
     if(animationId)cancelAnimationFrame(animationId);
-    hasStarted=false;dx=0;dy=-1;nextDx=0;nextDy=0;speed=250;
+    hasStarted=false;dx=0;dy=-1;nextDx=0;nextDy=0;speed=isMobile?200:250;
     currentTerrain=0;
     initSnake();gameActive=true;gameOverScreen.classList.remove('active');hudBar.style.display='flex';
     generateBG();initMaze();placeFood();
