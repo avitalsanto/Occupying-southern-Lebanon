@@ -1179,7 +1179,13 @@ function update(){
     const head={lx:snake[0].lx+dx,ly:snake[0].ly+dy};
 
     if(head.lx<0||head.lx>=tileCountX||head.ly<hudRows||head.ly>=tileCountY) return;
-    if(snake.length>1&&snake[1].lx===head.lx&&snake[1].ly===head.ly) return;
+    if(snake.length>1&&snake[1].lx===head.lx&&snake[1].ly===head.ly){
+        snake.reverse();
+        for(let i=0;i<snake.length;i++){snake[i].vx=snake[i].lx*gridSize;snake[i].vy=snake[i].ly*gridSize;}
+        dx=nextDx;dy=nextDy;
+        createSmokeTrail(snake[snake.length-1].vx+gridSize/2,snake[snake.length-1].vy+gridSize/2);
+        return;
+    }
     if(snake.slice(2).some(s=>s.lx===head.lx&&s.ly===head.ly)){const r=handleCollision('self',head);if(!r)return endGame();return;}
     if(mazeWalls.some(w=>w.lx===head.lx&&w.ly===head.ly)){const r=handleCollision('wall',head);if(!r)return endGame();if(r==='life')return;}
 
