@@ -1031,7 +1031,7 @@ function changeDir(dir) {
     if(dir==='down'){nextDx=0;nextDy=1;}
     if(dir==='left'){nextDx=-1;nextDy=0;}
     if(dir==='right'){nextDx=1;nextDy=0;}
-    if(hasStarted&&performance.now()-lastTime>speed*0.5){update();lastTime=performance.now();}
+    if(hasStarted&&performance.now()-lastTime>speed*0.3){update();lastTime=performance.now();}
     if (isMobile && navigator.vibrate) navigator.vibrate(10);
 }
 
@@ -1157,10 +1157,11 @@ function handleCollision(type,headPos){
         createFloatingText(hx,hy-30,'אאוץ\'!','#ff6080');
         playSound('hit');
         if (isMobile && navigator.vibrate) navigator.vibrate([30,20,60]);
-        snake=[snake[0]];dx=0;dy=-1;nextDx=0;nextDy=0;hasStarted=false;
-        let sp=getRandomPos(),att=0;
-        while((mazeWalls.some(w=>w.lx===sp.lx&&w.ly===sp.ly)||(food.lx===sp.lx&&food.ly===sp.ly)||sp.lx<1||sp.lx>=tileCountX-1||sp.ly<=hudRows||sp.ly>=tileCountY-1)&&att<100){sp=getRandomPos();att++;}
-        snake[0].lx=sp.lx;snake[0].ly=sp.ly;snake[0].vx=sp.lx*gridSize;snake[0].vy=sp.ly*gridSize;
+        dx=0;dy=-1;nextDx=0;nextDy=0;hasStarted=false;
+        const sp2=getRandomPos();let att2=0;
+        while((mazeWalls.some(w=>w.lx===sp2.lx&&w.ly===sp2.ly)||(food.lx===sp2.lx&&food.ly===sp2.ly)||sp2.lx<1||sp2.lx>=tileCountX-1||sp2.ly<=hudRows||sp2.ly>=tileCountY-1)&&att2<100){const p=getRandomPos();sp2.lx=p.lx;sp2.ly=p.ly;att2++;}
+        snake=[];
+        for(let i=0;i<3;i++){snake.push({lx:sp2.lx,ly:sp2.ly+i,vx:sp2.lx*gridSize,vy:(sp2.ly+i)*gridSize});}
         return 'life';
     }
     return false;
@@ -1178,7 +1179,8 @@ function update(){
     const head={lx:snake[0].lx+dx,ly:snake[0].ly+dy};
 
     if(head.lx<0||head.lx>=tileCountX||head.ly<hudRows||head.ly>=tileCountY) return;
-    if(snake.some(s=>s.lx===head.lx&&s.ly===head.ly)){const r=handleCollision('self',head);if(!r)return endGame();return;}
+    if(snake.length>1&&snake[1].lx===head.lx&&snake[1].ly===head.ly) return;
+    if(snake.slice(2).some(s=>s.lx===head.lx&&s.ly===head.ly)){const r=handleCollision('self',head);if(!r)return endGame();return;}
     if(mazeWalls.some(w=>w.lx===head.lx&&w.ly===head.ly)){const r=handleCollision('wall',head);if(!r)return endGame();if(r==='life')return;}
 
     const tail=snake[snake.length-1];createSmokeTrail(tail.vx+gridSize/2,tail.vy+gridSize/2);
