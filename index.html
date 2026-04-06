@@ -637,33 +637,95 @@ function resizeCanvas() {
 // ═══════════════════════════════════════════
 const tankCanvas = document.createElement('canvas');
 const tankCtx = tankCanvas.getContext('2d');
-tankCanvas.width = 120; tankCanvas.height = 120;
+tankCanvas.width = 140; tankCanvas.height = 140;
 function drawTankSprite() {
     const c = tankCtx;
-    c.clearRect(0,0,120,120);
-    c.save(); c.translate(60,60);
+    c.clearRect(0,0,140,140);
+    c.save(); c.translate(70,70);
+
+    // Tracks (darker, wider, with detailed treads)
+    c.fillStyle='#1e1e14';
+    c.beginPath();c.roundRect(-46,-42,20,84,5);c.fill();
+    c.beginPath();c.roundRect(26,-42,20,84,5);c.fill();
+    // Track inner color
+    c.fillStyle='#2a2a1c';
+    c.beginPath();c.roundRect(-44,-40,16,80,4);c.fill();
+    c.beginPath();c.roundRect(28,-40,16,80,4);c.fill();
+    // Track treads
+    c.fillStyle='#383828';
+    for(let i=-36;i<40;i+=7){
+        c.fillRect(-45,i,18,3);c.fillRect(27,i,18,3);
+    }
+    // Track wheels (visible circles along the track)
+    c.fillStyle='#252518';c.strokeStyle='#3a3a28';c.lineWidth=1.5;
+    for(let i=-30;i<=30;i+=15){
+        c.beginPath();c.arc(-36,i,5,0,Math.PI*2);c.fill();c.stroke();
+        c.beginPath();c.arc(36,i,5,0,Math.PI*2);c.fill();c.stroke();
+    }
+    // Drive sprockets (larger wheels at ends)
     c.fillStyle='#2a2a1a';
-    c.beginPath();c.roundRect(-42,-38,18,76,6);c.fill();
-    c.beginPath();c.roundRect(24,-38,18,76,6);c.fill();
-    c.fillStyle='#3a3a28';
-    for(let i=-34;i<36;i+=8){c.fillRect(-41,i,16,4);c.fillRect(25,i,16,4);}
-    const bg=c.createLinearGradient(-30,-30,30,30);
-    bg.addColorStop(0,'#5a6b3a');bg.addColorStop(0.3,'#4a5a2e');bg.addColorStop(0.7,'#3e4e26');bg.addColorStop(1,'#354420');
-    c.fillStyle=bg;c.beginPath();c.roundRect(-28,-32,56,64,8);c.fill();
-    c.strokeStyle='rgba(80,100,50,0.5)';c.lineWidth=1;c.strokeRect(-24,-28,48,56);
-    c.fillStyle='rgba(60,80,30,0.4)';c.beginPath();c.ellipse(-10,-15,12,8,0.3,0,Math.PI*2);c.fill();
-    c.fillStyle='rgba(80,100,40,0.3)';c.beginPath();c.ellipse(12,10,10,6,-0.5,0,Math.PI*2);c.fill();
-    c.fillStyle='rgba(50,65,25,0.35)';c.beginPath();c.ellipse(-5,15,8,10,0.8,0,Math.PI*2);c.fill();
-    const tg=c.createRadialGradient(0,2,0,0,2,22);
-    tg.addColorStop(0,'#6a7b4a');tg.addColorStop(1,'#4a5a2e');
-    c.fillStyle=tg;c.beginPath();c.ellipse(0,2,20,18,0,0,Math.PI*2);c.fill();
-    c.strokeStyle='rgba(100,120,60,0.4)';c.lineWidth=1.5;c.beginPath();c.ellipse(0,2,18,16,0,0,Math.PI*2);c.stroke();
-    c.fillStyle='#3a4a28';c.beginPath();c.roundRect(-4,-52,8,38,2);c.fill();
-    c.fillStyle='rgba(100,120,60,0.3)';c.fillRect(-2,-50,2,34);
-    c.fillStyle='#2e3e1e';c.beginPath();c.roundRect(-6,-56,12,6,2);c.fill();
-    c.fillStyle='#4a5a2e';c.beginPath();c.ellipse(0,-2,7,6,0,0,Math.PI*2);c.fill();
+    [[-36,-36],[-36,36],[36,-36],[36,36]].forEach(([wx,wy])=>{
+        c.beginPath();c.arc(wx,wy,7,0,Math.PI*2);c.fill();c.stroke();
+        c.beginPath();c.arc(wx,wy,3,0,Math.PI*2);c.stroke();
+    });
+
+    // Hull (main body)
+    const bg=c.createLinearGradient(-30,-35,30,35);
+    bg.addColorStop(0,'#5e6e3e');bg.addColorStop(0.3,'#4e5e30');bg.addColorStop(0.7,'#405026');bg.addColorStop(1,'#384820');
+    c.fillStyle=bg;c.beginPath();c.roundRect(-30,-36,60,72,6);c.fill();
+    // Hull border
+    c.strokeStyle='rgba(90,110,50,0.5)';c.lineWidth=1.5;c.beginPath();c.roundRect(-30,-36,60,72,6);c.stroke();
+    // Hull panel lines
+    c.strokeStyle='rgba(60,80,30,0.3)';c.lineWidth=1;
+    c.beginPath();c.moveTo(-26,-10);c.lineTo(26,-10);c.stroke();
+    c.beginPath();c.moveTo(-26,14);c.lineTo(26,14);c.stroke();
+    // Engine deck (rear)
+    c.fillStyle='rgba(40,50,20,0.4)';c.beginPath();c.roundRect(-24,16,48,18,3);c.fill();
+    c.strokeStyle='rgba(80,100,40,0.3)';c.lineWidth=0.8;
+    for(let x=-20;x<=20;x+=5){c.beginPath();c.moveTo(x,18);c.lineTo(x,32);c.stroke();}
+    // Front hull detail (glacis plate)
+    c.fillStyle='rgba(70,85,40,0.25)';c.beginPath();c.moveTo(-26,-36);c.lineTo(26,-36);c.lineTo(22,-26);c.lineTo(-22,-26);c.closePath();c.fill();
+
+    // Turret
+    const tg=c.createRadialGradient(0,0,0,0,0,24);
+    tg.addColorStop(0,'#6e7e4e');tg.addColorStop(0.6,'#566a36');tg.addColorStop(1,'#4a5c2c');
+    c.fillStyle=tg;c.beginPath();c.ellipse(0,0,22,20,0,0,Math.PI*2);c.fill();
+    // Turret ring
+    c.strokeStyle='rgba(100,120,60,0.5)';c.lineWidth=2;c.beginPath();c.ellipse(0,0,22,20,0,0,Math.PI*2);c.stroke();
+    // Turret top detail
+    c.strokeStyle='rgba(80,100,45,0.3)';c.lineWidth=1;c.beginPath();c.ellipse(0,0,16,14,0,0,Math.PI*2);c.stroke();
+
+    // Main gun barrel
+    c.fillStyle='#3a4a28';c.beginPath();c.roundRect(-4,-58,8,42,2);c.fill();
+    // Gun barrel highlight
+    c.fillStyle='rgba(110,130,70,0.25)';c.fillRect(-2,-56,2,38);
+    // Muzzle brake
+    c.fillStyle='#2e3e1e';c.beginPath();c.roundRect(-7,-62,14,7,2);c.fill();
+    c.fillStyle='#252e18';c.beginPath();c.arc(0,-62,3,0,Math.PI*2);c.fill();
+
+    // Commander's hatch
+    c.fillStyle='#4e5e30';c.beginPath();c.arc(8,-6,6,0,Math.PI*2);c.fill();
     c.strokeStyle='rgba(90,110,50,0.6)';c.lineWidth=1;c.stroke();
-    c.fillStyle='rgba(140,170,80,0.15)';c.beginPath();c.ellipse(0,-2,18,14,0,-Math.PI,0);c.fill();
+    c.fillStyle='#5a6a38';c.beginPath();c.arc(8,-6,3.5,0,Math.PI*2);c.fill();
+
+    // Loader's hatch
+    c.fillStyle='#4a5a2c';c.beginPath();c.arc(-8,-4,5,0,Math.PI*2);c.fill();
+    c.strokeStyle='rgba(90,110,50,0.4)';c.lineWidth=0.8;c.stroke();
+
+    // Smoke launchers (side of turret)
+    c.fillStyle='#3a4828';
+    for(let i=0;i<3;i++){
+        c.beginPath();c.roundRect(20,-12+i*7,5,4,1);c.fill();
+    }
+
+    // Antenna
+    c.strokeStyle='#5a5a40';c.lineWidth=1;
+    c.beginPath();c.moveTo(-18,-8);c.lineTo(-22,-40);c.stroke();
+    c.fillStyle='#ff3030';c.beginPath();c.arc(-22,-40,2,0,Math.PI*2);c.fill();
+
+    // Light reflection on turret
+    c.fillStyle='rgba(150,180,90,0.1)';c.beginPath();c.ellipse(-4,-6,16,12,0,-Math.PI,0);c.fill();
+
     c.restore();
 }
 drawTankSprite();
@@ -969,6 +1031,7 @@ function changeDir(dir) {
     if(dir==='down'){nextDx=0;nextDy=1;}
     if(dir==='left'){nextDx=-1;nextDy=0;}
     if(dir==='right'){nextDx=1;nextDy=0;}
+    if(hasStarted&&performance.now()-lastTime>speed*0.5){update();lastTime=performance.now();}
     if (isMobile && navigator.vibrate) navigator.vibrate(10);
 }
 
