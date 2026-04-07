@@ -525,6 +525,13 @@ function playSound(type) {
                 g.gain.setValueAtTime(0.08,now);g.gain.linearRampToValueAtTime(0.18,now+0.3);g.gain.exponentialRampToValueAtTime(0.001,now+1.2);
                 o1.start(now);o2.start(now);o1.stop(now+1.2);o2.stop(now+1.2);break;
             }
+            case 'move': {
+                const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+                o.connect(g);g.connect(audioCtx.destination);o.type='square';
+                o.frequency.value=80;
+                g.gain.setValueAtTime(0.04,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.06);
+                o.start(now);o.stop(now+0.06);break;
+            }
             case 'gameOver': {
                 [440,370,311,261].forEach((freq,i) => {
                     const o=audioCtx.createOscillator(),g=audioCtx.createGain();
@@ -540,11 +547,11 @@ function playSound(type) {
 // Terrain System (evolves every 5 targets)
 // ═══════════════════════════════════════════
 const TERRAINS = [
-    { name:'שדה קרב',   emoji:'🪖', sub:'אזור 1', colors:['#4a4530','#3e3a28','#353020','#2e2a1a'], vignette:'rgba(120,80,20,0.25)' },
-    { name:'גבעות',     emoji:'🌿', sub:'אזור 2', colors:['#3e4430','#384028','#303822','#2a321c'], vignette:'rgba(60,100,40,0.2)' },
-    { name:'אגם',       emoji:'🏞️', sub:'אזור 3', colors:['#3a4238','#34402e','#2e3a28','#283420'], vignette:'rgba(40,100,80,0.2)' },
-    { name:'הרים',      emoji:'🏔️', sub:'אזור 4', colors:['#404540','#383e38','#303830','#2a322a'], vignette:'rgba(60,80,60,0.2)' },
-    { name:'עמק',       emoji:'🌾', sub:'אזור 5', colors:['#44422e','#3c3a26','#343220','#2e2c1a'], vignette:'rgba(100,90,30,0.2)' }
+    { name:'שדה קרב',   emoji:'🪖', sub:'אזור 1', colors:['#4a4530','#3e3a28','#353020','#2e2a1a'], vignette:'rgba(120,80,20,0.3)' },
+    { name:'גבעות',     emoji:'🌿', sub:'אזור 2', colors:['#3a5030','#2e4422','#264018','#1e3414'], vignette:'rgba(40,120,30,0.3)' },
+    { name:'אגם',       emoji:'🏞️', sub:'אזור 3', colors:['#2a3a48','#243848','#1e3040','#182838'], vignette:'rgba(30,80,140,0.3)' },
+    { name:'הרים',      emoji:'🏔️', sub:'אזור 4', colors:['#484848','#3e3e40','#343438','#2a2a30'], vignette:'rgba(80,80,100,0.3)' },
+    { name:'עמק',       emoji:'🌾', sub:'אזור 5', colors:['#504828','#483e20','#40361a','#382e14'], vignette:'rgba(140,110,30,0.3)' }
 ];
 let currentTerrain = 0;
 
@@ -786,14 +793,14 @@ function drawBGFeatures(c, w, h) {
             const hw=120+pseudoRandom(1100+i)*180, hh=50+pseudoRandom(1150+i)*70;
             const gr=c.createRadialGradient(hx,hy,0,hx,hy,hw);
             const gn=40+Math.floor(pseudoRandom(1200+i)*25);
-            gr.addColorStop(0, `rgba(${gn+15},${gn+35},${gn-5},0.2)`);
-            gr.addColorStop(0.6, `rgba(${gn+8},${gn+25},${gn-10},0.08)`);
+            gr.addColorStop(0, `rgba(${gn+15},${gn+35},${gn-5},0.35)`);
+            gr.addColorStop(0.6, `rgba(${gn+8},${gn+25},${gn-10},0.15)`);
             gr.addColorStop(1, 'transparent');
             c.fillStyle=gr; c.beginPath(); c.ellipse(hx,hy,hw,hh,0,0,Math.PI*2); c.fill();
         }
         for (let i=0;i<15;i++) {
             const tx=pseudoRandom(1300+i)*w, ty=pseudoRandom(1350+i)*h;
-            c.fillStyle=`rgba(45,${65+Math.floor(pseudoRandom(1400+i)*25)},30,0.18)`;
+            c.fillStyle=`rgba(45,${65+Math.floor(pseudoRandom(1400+i)*25)},30,0.3)`;
             c.beginPath(); c.arc(tx,ty,3+pseudoRandom(1450+i)*5,0,Math.PI*2); c.fill();
         }
     }
@@ -804,14 +811,14 @@ function drawBGFeatures(c, w, h) {
             const lx=pseudoRandom(2000+i)*w, ly=h*0.2+pseudoRandom(2050+i)*h*0.6;
             const lw=50+pseudoRandom(2100+i)*100, lh=30+pseudoRandom(2150+i)*60;
             const lg=c.createRadialGradient(lx,ly,0,lx,ly,Math.max(lw,lh));
-            lg.addColorStop(0, 'rgba(30,70,120,0.18)');
-            lg.addColorStop(0.5, 'rgba(40,90,140,0.1)');
-            lg.addColorStop(0.8, 'rgba(50,100,130,0.04)');
+            lg.addColorStop(0, 'rgba(30,70,120,0.3)');
+            lg.addColorStop(0.5, 'rgba(40,90,140,0.18)');
+            lg.addColorStop(0.8, 'rgba(50,100,130,0.08)');
             lg.addColorStop(1, 'transparent');
             c.fillStyle=lg; c.beginPath(); c.ellipse(lx,ly,lw,lh,pseudoRandom(2200+i)*0.8,0,Math.PI*2); c.fill();
-            c.strokeStyle='rgba(60,120,160,0.08)'; c.lineWidth=1.5;
+            c.strokeStyle='rgba(60,120,160,0.15)'; c.lineWidth=1.5;
             c.beginPath(); c.ellipse(lx,ly,lw*0.85,lh*0.85,pseudoRandom(2200+i)*0.8,0,Math.PI*2); c.stroke();
-            c.fillStyle='rgba(150,200,230,0.04)';
+            c.fillStyle='rgba(150,200,230,0.08)';
             c.beginPath(); c.ellipse(lx-lw*0.2,ly-lh*0.25,lw*0.3,lh*0.15,0.3,0,Math.PI*2); c.fill();
         }
     }
@@ -823,15 +830,15 @@ function drawBGFeatures(c, w, h) {
             const ph=80+pseudoRandom(3100+i)*120;
             const py=h*0.15+pseudoRandom(3150+i)*h*0.5;
             const mg=c.createLinearGradient(px,py-ph,px,py);
-            mg.addColorStop(0,'rgba(180,185,195,0.1)'); mg.addColorStop(0.3,'rgba(100,105,115,0.08)'); mg.addColorStop(1,'rgba(60,65,75,0.04)');
+            mg.addColorStop(0,'rgba(180,185,195,0.18)'); mg.addColorStop(0.3,'rgba(100,105,115,0.14)'); mg.addColorStop(1,'rgba(60,65,75,0.08)');
             c.fillStyle=mg;
             c.beginPath(); c.moveTo(px-pw,py); c.lineTo(px,py-ph); c.lineTo(px+pw,py); c.closePath(); c.fill();
-            c.fillStyle='rgba(220,230,240,0.06)';
+            c.fillStyle='rgba(220,230,240,0.12)';
             c.beginPath(); c.moveTo(px-pw*0.12,py-ph*0.82); c.lineTo(px,py-ph); c.lineTo(px+pw*0.12,py-ph*0.82); c.closePath(); c.fill();
         }
         for (let i=0;i<10;i++) {
             const rx=pseudoRandom(3200+i)*w, ry=pseudoRandom(3250+i)*h, rs=2+pseudoRandom(3300+i)*6;
-            c.fillStyle='rgba(75,80,70,0.1)';
+            c.fillStyle='rgba(75,80,70,0.18)';
             c.beginPath(); c.moveTo(rx,ry-rs); c.lineTo(rx+rs*0.6,ry+rs*0.3); c.lineTo(rx-rs*0.6,ry+rs*0.3); c.closePath(); c.fill();
         }
     }
@@ -841,7 +848,7 @@ function drawBGFeatures(c, w, h) {
         for (let i=0;i<2;i++) {
             const sy=h*0.2+pseudoRandom(4000+i)*h*0.6;
             c.save();
-            c.strokeStyle=`rgba(45,100,150,${0.08+pseudoRandom(4050+i)*0.06})`;
+            c.strokeStyle=`rgba(45,100,150,${0.14+pseudoRandom(4050+i)*0.08})`;
             c.lineWidth=8+pseudoRandom(4100+i)*12;
             c.lineCap='round';
             c.beginPath(); c.moveTo(0, sy);
@@ -850,13 +857,13 @@ function drawBGFeatures(c, w, h) {
                 c.lineTo(x, wy);
             }
             c.stroke();
-            c.strokeStyle=`rgba(70,140,190,${0.04+pseudoRandom(4200+i)*0.03})`;
+            c.strokeStyle=`rgba(70,140,190,${0.1+pseudoRandom(4200+i)*0.05})`;
             c.lineWidth=3; c.stroke();
             c.restore();
         }
         for (let i=0;i<20;i++) {
             const vx=pseudoRandom(4300+i)*w, vy=pseudoRandom(4350+i)*h;
-            c.fillStyle=`rgba(38,${70+Math.floor(pseudoRandom(4400+i)*30)},35,0.15)`;
+            c.fillStyle=`rgba(38,${70+Math.floor(pseudoRandom(4400+i)*30)},35,0.25)`;
             c.beginPath(); c.arc(vx,vy,3+pseudoRandom(4450+i)*7,0,Math.PI*2); c.fill();
         }
     }
@@ -1031,7 +1038,7 @@ function changeDir(dir) {
     if(dir==='down'){nextDx=0;nextDy=1;}
     if(dir==='left'){nextDx=-1;nextDy=0;}
     if(dir==='right'){nextDx=1;nextDy=0;}
-    if(hasStarted&&performance.now()-lastTime>speed*0.3){update();lastTime=performance.now();}
+    if(hasStarted&&performance.now()-lastTime>speed*0.15){update();lastTime=performance.now();}
     if (isMobile && navigator.vibrate) navigator.vibrate(10);
 }
 
@@ -1172,6 +1179,7 @@ function handleCollision(type,headPos){
 // ═══════════════════════════════════════════
 function update(){
     if(!hasStarted)return;
+    playSound('move');
     if(speedEffectTimer>0){speedEffectTimer-=speed/1000;speedTimerEl.textContent=Math.ceil(speedEffectTimer)+'s';if(speedEffectTimer<=0){speedEffectTimer=0;speedEffectType=null;speed=baseSpeed;speedIndicator.style.opacity='0';}}
     if(shieldTimer>0){shieldTimer-=speed/1000;shieldTimerEl.textContent=Math.ceil(shieldTimer)+'s';if(shieldTimer<=0){shieldTimer=0;shieldActive=false;shieldIndicator.style.opacity='0';}}
     if(doubleScoreTimer>0){doubleScoreTimer-=speed/1000;if(doubleScoreTimer<=0){doubleScoreTimer=0;doubleScoreActive=false;}}
